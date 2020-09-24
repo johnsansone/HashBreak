@@ -2,30 +2,41 @@ import hashlib
 from hashlib import md5
 import base64
 import string 
+import ctypes
+import pathlib
 import numpy
 from numpy import array
 from numba import vectorize, cuda,jit
-import pycuda
 
 
 
 
 
 
+
+libname = pathlib.Path().absolute() / "hashmult.so"
 
 @cuda.jit
 def solutions(hashed_pass,salt,pass_list):
-    #Print("started")
+    
     for xs in range(0,len(pass_list)):
 
-        hash = hashlib.md5(salt+bytes(pass_list[xs], 'utf-8')).hexdigest()
-        
+        c_lib = ctypes.CDLL(libname)
+        pasvar = salt+bytes(pass_list[xs], 'utf-8')
+        c_lib.hashc.argtypes = [ctypes.char,ctypes.char]
+        ans = c_lib.hashc(pasvar, ctypes.c_float(y))
+        if(ans == 1):
+            
+            return ans
+            
+if False:
+    if False:
         if hash == hashed_pass:
             print(hash)
-            break
-
+            #break
+#hsh.hash.argtypes = [ctypes.pasvar]
 if __name__ == "__main__":
-
+    
     File_read = open("Problem-1/shadowfile.txt","r", encoding='utf-8')
     File_readps = open("Problem-1/xato-net-10-million-passwords.txt","r", encoding='utf-8')
     File_result = open("shadowfileans.txt","r")
